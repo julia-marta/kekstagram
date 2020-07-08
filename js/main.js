@@ -4,7 +4,6 @@ var PHOTOS_COUNT = 25;
 var MIN_LIKES = 15;
 var MAX_LIKES = 200;
 var MAX_COMMENTS = 5;
-var ESC_KEY = 'Escape';
 
 var DESCRIPTIONS = ['Летний чил на югах', 'Отдыхаем...', 'Как же круто тут кормят', 'Если чётко сформулировать желание для Вселенной, то всё обязательно сбудется. Верьте в себя. Главное хотеть и мечтать.....', 'Господи, это такая милота, я сейчас умру от нежности, у меня закшалил мимимиметр', 'Затусили с друзьями на море', 'Вот это тачка!', 'Тестим новую камеру!', 'Норм'];
 var MESSAGES = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.', 'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'];
@@ -18,6 +17,7 @@ var pictures = document.querySelector('.pictures');
 var picturePreview = document.querySelector('.big-picture');
 var picturePreviewImage = picturePreview.querySelector('.big-picture__img');
 var picturePreviewComment = picturePreview.querySelector('.social__comment');
+var picturePreviewClose = picturePreview.querySelector('.big-picture__cancel');
 
 var pictureUploadField = document.querySelector('#upload-file');
 var pictureEditForm = document.querySelector('.img-upload__overlay');
@@ -36,6 +36,11 @@ var hashtagsInput = pictureEditForm.querySelector('.text__hashtags');
 var HASHTAG_LENGTH = 20;
 var MAX_HASTAGS = 5;
 
+var Key = {
+  ENTER: 'Enter',
+  ESC: 'Escape'
+};
+
 var Scale = {
   MIN: 25,
   MAX: 100,
@@ -52,10 +57,14 @@ var ValidateError = {
   TOO_MUCH: 'Нельзя указать больше пяти хэш-тегов'
 };
 
-// обработчик нажатия на клавишу эскейп
+var isEnterEvent = function (evt, action, argument) {
+  if (evt.key === Key.ENTER) {
+    action(argument);
+  }
+};
 
 var isEscEvent = function (evt, action) {
-  if (evt.key === ESC_KEY) {
+  if (evt.key === Key.ESC) {
     action();
   }
 };
@@ -116,34 +125,8 @@ var getPhotos = function () {
 
 getPhotos();
 
-//  функция создания элемента фотографии на основе объекта из массива с фотографиями
 
-var renderPicture = function (photo) {
-  var pictureElement = pictureTemplate.cloneNode(true);
-
-  pictureElement.querySelector('img').src = photo.url;
-  pictureElement.querySelector('.picture__likes').textContent = photo.likes;
-  pictureElement.querySelector('.picture__comments').textContent = photo.comments.length;
-
-  return pictureElement;
-};
-
-// функция отрисовки созданных элементов фотографий
-
-var createPicture = function (arr) {
-  var picture = document.createDocumentFragment();
-  for (var i = 0; i < arr.length; i++) {
-    picture.appendChild(renderPicture(arr[i]));
-  }
-
-  return pictures.appendChild(picture);
-};
-
-// отрисовка фотографий
-
-createPicture(photos);
-
-// функция отрисовки комментариев к фотографии из массива
+// отрисовка комментариев
 
 var renderComments = function (photo) {
   var newComments = document.createDocumentFragment();
@@ -158,24 +141,69 @@ var renderComments = function (photo) {
   return newComments;
 };
 
-// функция отображения полноразмерного просмотра фотографии и заполнения интерфейса данными из массива
+// просмотр фотографии в полноразмерном режиме
 
-var showPhoto = function (i) {
-  picturePreview.classList.remove('hidden');
-  picturePreviewImage.querySelector('img').src = photos[i].url;
-  picturePreview.querySelector('.likes-count').textContent = photos[i].likes;
-  picturePreview.querySelector('.comments-count').textContent = photos[i].comments.length;
+var showFullPreview = function (photo) {
+  picturePreviewImage.querySelector('img').src = photo.url;
+  picturePreview.querySelector('.likes-count').textContent = photo.likes;
+  picturePreview.querySelector('.comments-count').textContent = photo.comments.length;
   picturePreview.querySelector('.social__comments').innerHTML = '';
-  picturePreview.querySelector('.social__comments').appendChild(renderComments(photos[i]));
-  picturePreview.querySelector('.social__caption').textContent = photos[i].description;
+  picturePreview.querySelector('.social__comments').appendChild(renderComments(photo));
+  picturePreview.querySelector('.social__caption').textContent = photo.description;
   picturePreview.querySelector('.social__comment-count').classList.add('hidden');
   picturePreview.querySelector('.comments-loader').classList.add('hidden');
+  picturePreview.classList.remove('hidden');
   document.body.classList.add('modal-open');
+
+  var closeFullPreview = function () {
+    picturePreview.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    document.removeEventListener('keydown', onFullPreviewEscPress);
+  };
+
+  var onFullPreviewEscPress = function (evt) {
+    isEscEvent(evt, closeFullPreview);
+  };
+
+  document.addEventListener('keydown', onFullPreviewEscPress);
+  picturePreviewClose.addEventListener('click', closeFullPreview);
 };
 
-// отображение полноразмерного просмотра фотографии c данными из массива
 
-showPhoto(0);
+//  создание фотографии с обработчиком полноразмерного просмотра
+
+var renderPicture = function (photo) {
+  var picture = pictureTemplate.cloneNode(true);
+
+  picture.querySelector('img').src = photo.url;
+  picture.querySelector('.picture__likes').textContent = photo.likes;
+  picture.querySelector('.picture__comments').textContent = photo.comments.length;
+
+  var onPhotoEnterPress = function (evt) {
+    isEnterEvent(evt, showFullPreview, photo);
+  };
+
+  picture.addEventListener('click', function () {
+    showFullPreview(photo);
+  });
+  picture.addEventListener('keydown', onPhotoEnterPress);
+
+  return picture;
+};
+
+// отрисовка всех фотографий
+
+var createPhotos = function (arr) {
+  var photo = document.createDocumentFragment();
+  for (var i = 0; i < arr.length; i++) {
+    photo.appendChild(renderPicture(arr[i]));
+  }
+
+  return pictures.appendChild(photo);
+};
+
+createPhotos(photos);
+
 
 // показ и закрытие формы редактирования фотографии
 
@@ -193,7 +221,7 @@ var showEditForm = function () {
   };
 
   var onEditFormEscPress = function (evt) {
-    if (!evt.target.classList.contains('text__hashtags')) {
+    if (!evt.target.classList.contains('text__hashtags') && !evt.target.classList.contains('text__description')) {
       isEscEvent(evt, closeEditForm);
     }
   };
