@@ -5,7 +5,7 @@
     .content
     .querySelector('.picture');
   var gallery = document.querySelector('.pictures');
-
+  var photos = [];
 
   //  создание фотографии с обработчиком полноразмерного просмотра
 
@@ -36,5 +36,11 @@
     }
   };
 
-  createPhotos(window.data.photos);
+  var onSuccess = function (data) {
+    photos = data.slice();
+    createPhotos(photos);
+  };
+
+  window.data.load(onSuccess);
+
 })();

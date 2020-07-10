@@ -1,24 +1,64 @@
 'use strict';
 
 (function () {
+  var MAX_COMMENTS = 5;
   var preview = document.querySelector('.big-picture');
   var previewClose = preview.querySelector('.big-picture__cancel');
   var previewImage = preview.querySelector('.big-picture__img img');
-  var previewComment = preview.querySelector('.social__comment');
+  var previewComments = preview.querySelector('.social__comments');
+  var commentTemplate = preview.querySelector('.social__comment');
+  var commentsCount = preview.querySelector('.comments-loaded');
+  var commentsLoader = preview.querySelector('.comments-loader');
 
   // отрисовка комментариев
 
   var renderComments = function (photo) {
-    var comments = document.createDocumentFragment();
+
     photo.comments.forEach(function (item) {
-      var comment = previewComment.cloneNode(true);
+      var comment = commentTemplate.cloneNode(true);
       comment.querySelector('img').src = item.avatar;
       comment.querySelector('img').alt = item.name;
       comment.querySelector('.social__text').textContent = item.message;
-      comments.appendChild(comment);
+      previewComments.appendChild(comment);
     });
+  };
 
-    return comments;
+  // загрузка новых комментариев
+
+  var loadComments = function () {
+    var loadedComments = MAX_COMMENTS;
+    var allComments = previewComments.children;
+
+    var addComments = function () {
+      for (var i = 0; i < allComments.length; i++) {
+        if (i < loadedComments) {
+          allComments[i].classList.remove('hidden');
+        } else {
+          allComments[i].classList.add('hidden');
+        }
+      }
+      commentsCount.textContent = loadedComments;
+    };
+
+    if (allComments.length < MAX_COMMENTS) {
+      commentsLoader.classList.add('hidden');
+      commentsCount.textContent = allComments.length;
+    } else {
+      commentsLoader.classList.remove('hidden');
+      addComments();
+    }
+
+    commentsLoader.addEventListener('click', function () {
+      loadedComments += MAX_COMMENTS;
+
+      if (loadedComments < allComments.length) {
+        commentsLoader.classList.remove('hidden');
+      } else {
+        commentsLoader.classList.add('hidden');
+        loadedComments = allComments.length;
+      }
+      addComments();
+    });
   };
 
   // просмотр фотографии в полноразмерном режиме
@@ -27,11 +67,11 @@
     previewImage.src = photo.url;
     preview.querySelector('.likes-count').textContent = photo.likes;
     preview.querySelector('.comments-count').textContent = photo.comments.length;
-    preview.querySelector('.social__comments').innerHTML = '';
-    preview.querySelector('.social__comments').appendChild(renderComments(photo));
     preview.querySelector('.social__caption').textContent = photo.description;
-    preview.querySelector('.social__comment-count').classList.add('hidden');
-    preview.querySelector('.comments-loader').classList.add('hidden');
+    previewComments.innerHTML = '';
+    renderComments(photo);
+    loadComments();
+
     preview.classList.remove('hidden');
     document.body.classList.add('modal-open');
 
