@@ -17,10 +17,11 @@
     MAX: 453
   };
 
-  var sliderToggle = window.form.slider.querySelector('.effect-level__pin');
-  var sliderBar = window.form.slider.querySelector('.effect-level__line');
-  var sliderScale = window.form.slider.querySelector('.effect-level__depth');
-  var effectLevelInput = window.form.slider.querySelector('input[name=effect-level]');
+  var slider = window.form.dialog.querySelector('.effect-level');
+  var sliderToggle = slider.querySelector('.effect-level__pin');
+  var sliderBar = slider.querySelector('.effect-level__line');
+  var sliderScale = slider.querySelector('.effect-level__depth');
+  var effectLevelInput = slider.querySelector('input[name=effect-level]');
 
   var setEffectLevel = function (togglePosition) {
     var effectLevelPercent = Math.round(togglePosition * 100 / sliderBar.offsetWidth);
@@ -52,6 +53,11 @@
     sliderToggle.style.left = ToggleCoord.MAX + 'px';
     sliderScale.style.width = 100 + '%';
     effectLevelInput.value = 100;
+    if (window.form.image.className === 'effects__preview--none') {
+      slider.classList.add('hidden');
+    } else {
+      slider.classList.remove('hidden');
+    }
   };
 
   var onToggleMouseDown = function (evt) {
@@ -88,6 +94,7 @@
   sliderToggle.addEventListener('mousedown', onToggleMouseDown);
 
   window.slider = {
+    scale: slider,
     reset: resetEffectLevel
   };
 })();

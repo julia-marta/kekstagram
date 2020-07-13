@@ -3,18 +3,20 @@
 (function () {
 
   var URL = {
-    GET: 'https://javascript.pages.academy/kekstagram/data'
+    GET: 'https://javascript.pages.academy/kekstagram/data',
+    POST: 'https://javascript.pages.academy/kekstagram'
   };
 
   var Method = {
-    GET: 'GET'
+    GET: 'GET',
+    POST: 'POST'
   };
 
   var StatusCode = {
     OK: 200
   };
 
-  var onLoad = function (onSuccess, onError) {
+  var onLoad = function (onSuccess, onError, data) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
 
@@ -29,11 +31,17 @@
       onError();
     });
 
-    xhr.open(Method.GET, URL.GET);
-    xhr.send();
+    if (data) {
+      xhr.open(Method.POST, URL.POST);
+      xhr.send(data);
+    } else {
+      xhr.open(Method.GET, URL.GET);
+      xhr.send();
+    }
   };
 
   window.data = {
-    load: onLoad
+    get: onLoad,
+    post: onLoad
   };
 })();

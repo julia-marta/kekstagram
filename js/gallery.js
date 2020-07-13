@@ -41,6 +41,6 @@
     createPhotos(photos);
   };
 
-  window.data.load(onSuccess);
+  window.data.get(onSuccess, window.form.onError);
 
 })();

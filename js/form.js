@@ -8,37 +8,51 @@
     GAP: 25
   };
 
+  var mainPage = document.querySelector('main');
   var uploadField = document.querySelector('#upload-file');
-  var form = document.querySelector('.img-upload__overlay');
-  var formClose = form.querySelector('#upload-cancel');
-  var image = form.querySelector('.img-upload__preview img');
-  var filters = form.querySelector('.effects');
-  var slider = form.querySelector('.effect-level');
-  var decreaseControl = form.querySelector('.scale__control--smaller');
-  var increaseControl = form.querySelector('.scale__control--bigger');
-  var scaleLevelInput = form.querySelector('input[name=scale]');
+  var dialog = document.querySelector('.img-upload__overlay');
+  var form = document.querySelector('.img-upload__form');
+  var formClose = dialog.querySelector('#upload-cancel');
+  var image = dialog.querySelector('.img-upload__preview img');
+  var filters = dialog.querySelector('.effects');
+  var decreaseControl = dialog.querySelector('.scale__control--smaller');
+  var increaseControl = dialog.querySelector('.scale__control--bigger');
+  var scaleLevelInput = dialog.querySelector('input[name=scale]');
+  var successMessage = document.querySelector('#success')
+    .content
+    .querySelector('.success');
+  var errorMessage = document.querySelector('#error')
+    .content
+    .querySelector('.error');
 
-  // показ и закрытие формы редактирования фотографии
+  // закрытие формы и сброс всех данных
+
+  var closeForm = function () {
+    document.body.classList.remove('modal-open');
+    dialog.classList.add('hidden');
+    image.className = '';
+    image.style.filter = '';
+    uploadField.value = '';
+    resetScale();
+    form.reset();
+    window.slider.reset();
+    document.removeEventListener('keydown', onFormEscPress);
+  };
+
+  var onFormEscPress = function (evt) {
+    if (!evt.target.classList.contains('text__hashtags') && !evt.target.classList.contains('text__description')) {
+      window.main.isEscEvent(evt, closeForm);
+    }
+  };
+
+  // показ формы
 
   var showForm = function () {
     document.body.classList.add('modal-open');
-    form.classList.remove('hidden');
+    dialog.classList.remove('hidden');
     if (image.className === '') {
-      slider.classList.add('hidden');
+      window.slider.scale.classList.add('hidden');
     }
-
-    var closeForm = function () {
-      document.body.classList.remove('modal-open');
-      form.classList.add('hidden');
-      uploadField.value = '';
-      document.removeEventListener('keydown', onFormEscPress);
-    };
-
-    var onFormEscPress = function (evt) {
-      if (!evt.target.classList.contains('text__hashtags') && !evt.target.classList.contains('text__description')) {
-        window.main.isEscEvent(evt, closeForm);
-      }
-    };
 
     formClose.addEventListener('click', closeForm);
     document.addEventListener('keydown', onFormEscPress);
@@ -51,13 +65,8 @@
   var onFilterToggle = function (evt) {
     image.className = '';
     image.style.filter = '';
-    window.slider.reset();
     image.classList.add('effects__preview--' + evt.target.value);
-    if (image.className === 'effects__preview--none') {
-      slider.classList.add('hidden');
-    } else {
-      slider.classList.remove('hidden');
-    }
+    window.slider.reset();
   };
 
   filters.addEventListener('change', onFilterToggle);
@@ -81,6 +90,11 @@
     image.style.transform = 'scale(' + scaleLevel / 100 + ')';
   };
 
+  var resetScale = function () {
+    scaleLevelInput.value = Scale.MAX + '%';
+    image.style.transform = 'scale(' + Scale.MAX / 100 + ')';
+  };
+
   var onDecreaseControlClick = function () {
     changeScale(decreaseLevel);
   };
@@ -92,9 +106,53 @@
   decreaseControl.addEventListener('click', onDecreaseControlClick);
   increaseControl.addEventListener('click', onIncreaseControlClick);
 
+  // добавление сообщений об успехе/ошибке
+
+  var renderMessage = function (template) {
+    var message = template.cloneNode(true);
+    mainPage.appendChild(message);
+    message.style.zIndex = '100';
+
+    var closeMessage = function () {
+      mainPage.removeChild(message);
+
+      document.removeEventListener('keydown', onMessageEscPress);
+      document.removeEventListener('click', closeMessage);
+    };
+
+    var onMessageEscPress = function (evt) {
+      window.main.isEscEvent(evt, closeMessage);
+    };
+
+    document.addEventListener('keydown', onMessageEscPress);
+    document.addEventListener('click', closeMessage);
+
+    var closeButton = (message.classList.contains('success')) ? message.querySelector('.success__button') : message.querySelector('.error__button');
+
+    if (closeButton) {
+      closeButton.addEventListener('click', closeMessage);
+    }
+  };
+
+  var onSuccess = function () {
+    renderMessage(successMessage);
+    closeForm();
+  };
+
+  var onError = function () {
+    renderMessage(errorMessage);
+  };
+
+  var onSubmit = function (evt) {
+    evt.preventDefault();
+    window.data.post(onSuccess, onError, new FormData(form));
+  };
+
+  form.addEventListener('submit', onSubmit);
+
   window.form = {
-    dialog: form,
-    slider: slider,
-    image: image
+    dialog: dialog,
+    image: image,
+    onError: onError
   };
 })();
