@@ -47,8 +47,6 @@
 
   uploadField.addEventListener('change', onImageLoad);
 
-  // закрытие формы и сброс всех данных
-
   var closeForm = function () {
     document.body.classList.remove('modal-open');
     dialog.classList.add('hidden');
@@ -68,8 +66,6 @@
     }
   };
 
-  // показ формы
-
   var showForm = function () {
     document.body.classList.add('modal-open');
     dialog.classList.remove('hidden');
@@ -83,8 +79,6 @@
 
   uploadField.addEventListener('change', showForm);
 
-  // переключение фильтров
-
   var onFilterToggle = function (evt) {
     image.className = '';
     image.style.filter = '';
@@ -93,8 +87,6 @@
   };
 
   filters.addEventListener('change', onFilterToggle);
-
-  // изменение масштаба фотографии
 
   var decreaseLevel = function (level) {
     level = (level >= (Scale.MIN + Scale.GAP)) ? level - Scale.GAP : Scale.MIN;
@@ -128,8 +120,6 @@
 
   decreaseControl.addEventListener('click', onDecreaseControlClick);
   increaseControl.addEventListener('click', onIncreaseControlClick);
-
-  // добавление сообщений об успехе/ошибке
 
   var renderMessage = function (template) {
     var message = template.cloneNode(true);
@@ -174,7 +164,6 @@
   form.addEventListener('submit', onSubmit);
 
   window.form = {
-    upload: uploadField,
     dialog: dialog,
     image: image,
     onError: onError

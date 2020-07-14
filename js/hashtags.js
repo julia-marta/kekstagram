@@ -31,7 +31,6 @@
     var isNotHashFirst = hashtagsArray.some(function (item) {
       return item[0] !== '#';
     });
-
     if (isNotHashFirst) {
       invalidMessages.push(ValidateError.NO_HASH);
     }
@@ -39,7 +38,6 @@
     var isNotValidSymbols = hashtagsArray.some(function (item) {
       return validSymbols.test(item) !== true;
     });
-
     if (isNotValidSymbols) {
       invalidMessages.push(ValidateError.BAD_SYMBOLS);
     }
@@ -47,7 +45,6 @@
     var isOnlyHashContains = hashtagsArray.some(function (item) {
       return item === '#';
     });
-
     if (isOnlyHashContains) {
       invalidMessages.push(ValidateError.ONLY_HASH);
     }
@@ -55,7 +52,6 @@
     var isTooLong = hashtagsArray.some(function (item) {
       return item.length > HASHTAG_LENGTH;
     });
-
     if (isTooLong) {
       invalidMessages.push(ValidateError.TOO_LONG);
     }
@@ -63,7 +59,6 @@
     var isNoSpaces = hashtagsArray.some(function (item) {
       return item.indexOf('#', 1) >= 1;
     });
-
     if (isNoSpaces) {
       invalidMessages.push(ValidateError.NO_SPACES);
     }
@@ -71,7 +66,6 @@
     var isHashtagRepeats = hashtagsArray.some(function (item, i, arr) {
       return arr.indexOf(item, i + 1) >= i + 1;
     });
-
     if (isHashtagRepeats) {
       invalidMessages.push(ValidateError.REPEAT);
     }
