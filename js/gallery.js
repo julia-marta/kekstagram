@@ -5,9 +5,8 @@
     .content
     .querySelector('.picture');
   var gallery = document.querySelector('.pictures');
+  var filters = document.querySelector('.img-filters');
   var photos = [];
-
-  //  создание фотографии с обработчиком полноразмерного просмотра
 
   var renderPicture = function (photo) {
     var picture = pictureTemplate.cloneNode(true);
@@ -28,19 +27,36 @@
     return picture;
   };
 
-  // отрисовка всех фотографий
-
   var createPhotos = function (arr) {
     for (var i = 0; i < arr.length; i++) {
       gallery.appendChild(renderPicture(arr[i]));
     }
   };
 
+  var removePhotos = function () {
+    Array.from(gallery.children).forEach(function (item) {
+      if (item.classList.contains('picture')) {
+        gallery.removeChild(item);
+      }
+    });
+  };
+
+  var filterPhotos = function () {
+    var filteredPhotos = window.filter.data(photos);
+    createPhotos(filteredPhotos);
+  };
+
   var onSuccess = function (data) {
     photos = data.slice();
-    createPhotos(photos);
+    filterPhotos();
+    filters.classList.remove('img-filters--inactive');
   };
 
   window.data.get(onSuccess, window.form.onError);
 
+  window.gallery = {
+    filters: filters,
+    removePhotos: removePhotos,
+    filterPhotos: filterPhotos
+  };
 })();
