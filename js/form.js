@@ -8,11 +8,14 @@
     GAP: 25
   };
 
+  var DEFAULT_IMAGE = 'img/upload-default-image.jpg';
+  var IMAGE_TYPES = ['jpg', 'jpeg', 'png'];
+
   var mainPage = document.querySelector('main');
   var uploadField = document.querySelector('#upload-file');
   var dialog = document.querySelector('.img-upload__overlay');
   var form = document.querySelector('.img-upload__form');
-  var formClose = dialog.querySelector('#upload-cancel');
+  var dialogClose = dialog.querySelector('#upload-cancel');
   var image = dialog.querySelector('.img-upload__preview img');
   var filters = dialog.querySelector('.effects');
   var decreaseControl = dialog.querySelector('.scale__control--smaller');
@@ -25,6 +28,25 @@
     .content
     .querySelector('.error');
 
+  var onImageLoad = function (evt) {
+    var file = evt.target.files[0];
+    var fileType = file.type.toLowerCase();
+
+    var isValidType = IMAGE_TYPES.some(function (it) {
+      return fileType.endsWith(it);
+    });
+
+    if (isValidType) {
+      var reader = new FileReader();
+      reader.addEventListener('load', function () {
+        image.src = reader.result;
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  uploadField.addEventListener('change', onImageLoad);
+
   // закрытие формы и сброс всех данных
 
   var closeForm = function () {
@@ -32,6 +54,7 @@
     dialog.classList.add('hidden');
     image.className = '';
     image.style.filter = '';
+    image.src = DEFAULT_IMAGE;
     uploadField.value = '';
     resetScale();
     form.reset();
@@ -54,7 +77,7 @@
       window.slider.scale.classList.add('hidden');
     }
 
-    formClose.addEventListener('click', closeForm);
+    dialogClose.addEventListener('click', closeForm);
     document.addEventListener('keydown', onFormEscPress);
   };
 
@@ -151,6 +174,7 @@
   form.addEventListener('submit', onSubmit);
 
   window.form = {
+    upload: uploadField,
     dialog: dialog,
     image: image,
     onError: onError
