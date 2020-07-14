@@ -10,10 +10,7 @@
   var commentsCount = preview.querySelector('.comments-loaded');
   var commentsLoader = preview.querySelector('.comments-loader');
 
-  // отрисовка комментариев
-
   var renderComments = function (photo) {
-
     photo.comments.forEach(function (item) {
       var comment = commentTemplate.cloneNode(true);
       comment.querySelector('img').src = item.avatar;
@@ -22,8 +19,6 @@
       previewComments.appendChild(comment);
     });
   };
-
-  // загрузка новых комментариев
 
   var loadComments = function () {
     var loadedComments = MAX_COMMENTS;
@@ -60,8 +55,6 @@
       addComments();
     });
   };
-
-  // просмотр фотографии в полноразмерном режиме
 
   var showPreview = function (photo) {
     previewImage.src = photo.url;
