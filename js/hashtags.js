@@ -85,4 +85,8 @@
   };
 
   hashtagsInput.addEventListener('input', checkHashtags);
+
+  window.hashtags = {
+    input: hashtagsInput
+  };
 })();

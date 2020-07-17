@@ -57,6 +57,7 @@
     resetScale();
     form.reset();
     window.slider.reset();
+    window.hashtags.input.style.outline = '';
     document.removeEventListener('keydown', onFormEscPress);
   };
 
