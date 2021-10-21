@@ -3,8 +3,8 @@
 (function () {
 
   var URL = {
-    GET: 'https://javascript.pages.academy/kekstagram/data',
-    POST: 'https://javascript.pages.academy/kekstagram'
+    GET: 'https://24.javascript.pages.academy/kekstagram/data',
+    POST: 'https://24.javascript.pages.academy/kekstagram'
   };
 
   var Method = {
